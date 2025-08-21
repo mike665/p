@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tomkins.live — Email Verification</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      /* Monochrome palette to match the Westfalia art */
+      --bg0:#0a0a0a;      /* page background */
+      --bg1:#111214;      /* gradient dark */
+      --bg2:#1a1c1f;      /* gradient mid */
+      --card:#17181b;     /* card surface */
+      --ink:#e9e9ea;      /* primary text */
+      --muted:#a7abb0;    /* secondary text */
+      --line:#2a2d31;     /* borders */
+      --glow:#ffffff;     /* soft highlights */
+    }
+
+    /* Background: subtle moving grayscale + particles */
+    html,body{height:100%}
+    body{
+      margin:0; color:var(--ink); font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+      background:
+        radial-gradient(1000px 700px at 15% 20%, #15171a 0%, transparent 60%),
+        radial-gradient(900px 600px at 85% 30%, #0f1012 0%, transparent 55%),
+        radial-gradient(1000px 700px at 35% 85%, #131417 0%, transparent 55%),
+        linear-gradient(135deg, var(--bg1), var(--bg2));
+      background-color:var(--bg0);
+      overflow-x:hidden;
+    }
+    /* very subtle luminance shimmer (grayscale) */
+    body::before{
+      content:""; position:fixed; inset:0; pointer-events:none; opacity:.25; mix-blend-mode:screen;
+      background: radial-gradient(60% 80% at 50% 50%, #202227, transparent 70%);
+      animation:haze 16s linear infinite;
+    }
+    @keyframes haze{
+      0%{transform:translate3d(0,0,0)}
+      100%{transform:translate3d(0,-2%,0)}
+    }
+
+    /* Layout */
+    .wrap{position:relative; min-height:100%; display:grid; place-items:center; padding:28px}
+    .shell{
+      position:relative; z-index:1; display:grid; gap:28px; align-items:center;
+      grid-template-columns: 1.1fr 0.9fr;
+      max-width:1000px; width:100%;
+    }
+    @media (max-width: 880px){
+      .shell{grid-template-columns:1fr}
+    }
+
+    /* Image panel */
+    .hero{
+      position:relative; display:flex; align-items:center; justify-content:center;
+      padding:22px; border-radius:22px;
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.00));
+      border:1px solid var(--line);
+      box-shadow: 0 20px 60px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,0.03);
+      min-height: 360px;
+      backdrop-filter: blur(2px) saturate(120%);
+      animation:rise .8s ease-out both;
+    }
+    .hero img{
+      max-width:min(560px, 95%);
+      height:auto; display:block;
+      filter: drop-shadow(0 18px 40px rgba(0,0,0,.55)) drop-shadow(0 0 24px rgba(255,255,255,.06));
+      transform: translateZ(0);
+      user-select:none; pointer-events:none;
+    }
+
+    /* Content card */
+    .card{
+      background:color-mix(in oklab, var(--card), black 8%);
+      border:1px solid var(--line);
+      border-radius:20px; padding:26px 28px; text-align:left;
+      box-shadow: 0 16px 48px rgba(0,0,0,.45);
+      animation:rise .9s .05s ease-out both;
+      backdrop-filter: blur(4px) saturate(115%);
+    }
+    @keyframes rise{from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:translateY(0)}}
+
+    .icon{font-size:2rem; margin-bottom:.4rem}
+    h1{margin:.1rem 0 .4rem; font-size:1.9rem; letter-spacing:.2px; font-weight:600}
+    .tag{
+      display:inline-block; font-size:.78rem; letter-spacing:.4px; text-transform:uppercase;
+      color:#dcdcdc; background:#0f0f10; border:1px solid var(--line);
+      padding:.25rem .55rem; border-radius:999px; margin-bottom:.8rem;
+    }
+    p{margin:.6rem 0; color:var(--muted); line-height:1.6}
+    b{color:#f2f2f2}
+    a{color:#dfe4ea; text-decoration:none; border-bottom:1px dashed rgba(223,228,234,.35); font-weight:600}
+    a:hover{text-decoration:underline}
+    .fine{font-size:.88rem; opacity:.9; margin-top:.8rem}
+
+    /* Particle canvas behind everything */
+    #bg{position:fixed; inset:0; z-index:0}
+
+    @media (prefers-reduced-motion: reduce){
+      body::before, .card, .hero{animation:none}
+    }
+
+    /* tiny footer */
+    footer{margin-top:14px; text-align:center; color:#8f949a; font-size:.8rem}
+  </style>
+</head>
+<body>
+  <canvas id="bg" aria-hidden="true"></canvas>
+
+  <div class="wrap">
+    <div class="shell">
+      <!-- IMAGE PANEL -->
+      <figure class="hero" aria-label="Volkswagen Westfalia illustration">
+        <img src="assets/westy.png" alt="Volkswagen Westfalia camper van illustration" width="900" height="900" loading="eager">
+      </figure>
+
+      <!-- CONTENT CARD -->
+      <section class="card" aria-label="Domain verification">
+        <div class="icon" aria-hidden="true">🔒</div>
+        <span class="tag">domain verification</span>
+        <h1>Tomkins.live</h1>
+        <p>This domain is used for official email communications.</p>
+        <p>All emails are authenticated via <b>SPF</b>, <b>DKIM</b>, and <b>DMARC</b>.</p>
+        <p>Need to confirm an email? Contact: <a href="mailto:verify@tomkins.live">verify@tomkins.live</a></p>
+        <p class="fine">Served over HTTPS. If an email fails authentication, treat it as suspicious.</p>
+        <footer id="year"></footer>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    // Year footer
+    document.getElementById('year').textContent = '© ' + new Date().getFullYear() + ' Tomkins.live';
+
+    // Minimal, grayscale particle field
+    (function () {
+      const c = document.getElementById('bg');
+      const ctx = c.getContext('2d', { alpha: true });
+      let W, H, DPR, pts = [], raf;
+      const MAX = 70, SPEED = 0.14, LINK = 120;
+
+      const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      function size() {
+        DPR = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+        W = c.width = Math.floor(innerWidth * DPR);
+        H = c.height = Math.floor(innerHeight * DPR);
+        c.style.width = innerWidth + 'px'; c.style.height = innerHeight + 'px';
+        ctx.setTransform(DPR,0,0,DPR,0,0);
+      }
+
+      function rnd(a,b){return Math.random()*(b-a)+a}
+
+      function init(){
+        const count = reduced ? 0 : Math.floor(MAX * (Math.min(innerWidth, 1400) / 1400));
+        pts = new Array(count).fill(0).map(()=>({
+          x:rnd(0, innerWidth), y:rnd(0, innerHeight),
+          vx:rnd(-SPEED, SPEED), vy:rnd(-SPEED, SPEED),
+          r:rnd(.7,1.8), a:rnd(.18,.55)
+        }));
+      }
+
+      function draw(){
+        ctx.clearRect(0,0,innerWidth,innerHeight);
+
+        // links
+        for(let i=0;i<pts.length;i++){
+          for(let j=i+1;j<pts.length;j++){
+            const dx=pts[i].x-pts[j].x, dy=pts[i].y-pts[j].y;
+            const d=Math.hypot(dx,dy);
+            if(d<LINK){
+              const alpha=(1-d/LINK)*0.12;
+              ctx.globalAlpha=alpha;
+              ctx.beginPath(); ctx.moveTo(pts[i].x,pts[i].y); ctx.lineTo(pts[j].x,pts[j].y);
+              ctx.strokeStyle='rgba(255,255,255,0.8)'; ctx.lineWidth=.6; ctx.stroke();
+            }
+          }
+        }
+        ctx.globalAlpha=1;
+
+        // dots
+        for(const p of pts){
+          p.x+=p.vx; p.y+=p.vy;
+          if(p.x<-10) p.x=innerWidth+10;
+          if(p.x>innerWidth+10) p.x=-10;
+          if(p.y<-10) p.y=innerHeight+10;
+          if(p.y>innerHeight+10) p.y=-10;
+
+          ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+          ctx.fillStyle='rgba(255,255,255,'+p.a+')'; ctx.fill();
+        }
+        raf=requestAnimationFrame(draw);
+      }
+
+      function start(){ cancelAnimationFrame(raf); size(); init(); draw(); }
+
+      document.addEventListener('visibilitychange', ()=> document.hidden ? cancelAnimationFrame(raf) : start());
+      addEventListener('resize', ()=>{ size(); });
+
+      if(!reduced){ start(); } else { size(); pts=[]; ctx.clearRect(0,0,innerWidth,innerHeight); }
+    })();
+  </script>
+</body>
+</html>
