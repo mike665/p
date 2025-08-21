@@ -1,0 +1,54 @@
+name: Update NL West standings
+
+on:
+  schedule:
+    - cron: '0 12 * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Fetch NL West standings from MLB Stats API
+        shell: bash
+        run: |
+          set -euo pipefail
+          SEASON=$(date +%Y)
+          DATE=$(date -u +%F)
+          URL="https://statsapi.mlb.com/api/v1/standings?leagueId=104&season=$SEASON&standingsTypes=byDivision&date=$DATE"
+          echo "Fetching: $URL"
+          mkdir -p tomkins-live
+          curl -fsSL "$URL" \
+          | jq '
+              .records
+              | map(select((.league.id == 104) and (.division.name | ascii_downcase | contains("west"))))
+              | first
+              | .teamRecords
+              | map({abbr: .team.abbreviation, wins: .wins, losses: .losses, gamesBack: .gamesBack})
+              | {teams: .}
+            ' \
+          > tomkins-live/standings-nl-west.json
+          echo "Wrote tomkins-live/standings-nl-west.json"
+
+      - name: Commit and push if changed
+        shell: bash
+        run: |
+          set -e
+          if ! git diff --quiet tomkins-live/standings-nl-west.json; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add tomkins-live/standings-nl-west.json
+            git commit -m "Update NL West standings [skip ci]"
+            git push
+          else
+            echo "No changes to commit."
+          fi
