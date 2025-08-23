@@ -1,9 +1,0 @@
-{
-  "teams": [
-    { "abbr": "LAD", "wins": 72, "losses": 54 },
-    { "abbr": "SD",  "wins": 70, "losses": 56 },
-    { "abbr": "ARI", "wins": 62, "losses": 66 },
-    { "abbr": "SF",  "wins": 61, "losses": 65 },
-    { "abbr": "COL", "wins": 36, "losses": 90 }
-  ]
-}
